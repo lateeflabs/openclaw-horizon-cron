@@ -582,18 +582,16 @@ function cmdImport(args) {
 // ─── Argument Parsing ───────────────────────────────────────────────────────
 
 function parseFlags(args) {
-  const flags = {};
-  const clean = [];
+  const flags = { _: [] };
   for (let i = 0; i < args.length; i++) {
     if (args[i].startsWith('--')) {
       const key = args[i].slice(2);
       const val = (args[i + 1] && !args[i + 1].startsWith('--')) ? args[++i] : true;
       flags[key] = val;
     } else {
-      clean.push(args[i]);
+      flags._.push(args[i]);
     }
   }
-  args._ = clean;
   return flags;
 }
 
@@ -606,29 +604,31 @@ function main() {
   const command = rawArgs[0].toLowerCase();
   const rest = rawArgs.slice(1);
 
+  const parsedRest = parseFlags(rest);
+
   try {
     switch (command) {
       case 'help':
       case '--help':
       case '-h':        cmdHelp(); break;
-      case 'add':       cmdAdd(parseFlags(rest)); break;
+      case 'add':       cmdAdd(parsedRest); break;
       case 'list':
-      case 'ls':        cmdList(parseFlags(rest)); break;
+      case 'ls':        cmdList(parsedRest); break;
       case 'remove':
       case 'rm':
-      case 'delete':    cmdRemove(parseFlags(rest)); break;
-      case 'pause':     cmdPause(parseFlags(rest)); break;
-      case 'resume':    cmdResume(parseFlags(rest)); break;
+      case 'delete':    cmdRemove(parsedRest); break;
+      case 'pause':     cmdPause(parsedRest); break;
+      case 'resume':    cmdResume(parsedRest); break;
       case 'logs':
-      case 'log':       cmdLogs(parseFlags(rest)); break;
+      case 'log':       cmdLogs(parsedRest); break;
       case 'status':
-      case 'info':      cmdStatus(parseFlags(rest)); break;
+      case 'info':      cmdStatus(parsedRest); break;
       case 'validate':
-      case 'check':     cmdValidate(parseFlags(rest)); break;
+      case 'check':     cmdValidate(parsedRest); break;
       case 'next':
-      case 'schedule':  cmdNext(parseFlags(rest)); break;
-      case 'export':    cmdExport(parseFlags(rest)); break;
-      case 'import':    cmdImport(parseFlags(rest)); break;
+      case 'schedule':  cmdNext(parsedRest); break;
+      case 'export':    cmdExport(parsedRest); break;
+      case 'import':    cmdImport(parsedRest); break;
       default:
         error(`Unknown command: ${command}`);
         console.log('Run "horizon-cron help" for usage.');
